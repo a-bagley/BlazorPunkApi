@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorPunkApi", "BlazorPunkApi\BlazorPunkApi.csproj", "{F32D6584-39F6-45D6-A44E-78232919825E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorPunkApi", "src\BlazorPunkApi\BlazorPunkApi.csproj", "{F32D6584-39F6-45D6-A44E-78232919825E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
