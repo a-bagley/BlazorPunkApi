@@ -1,0 +1,48 @@
+﻿@page "/beers"
+@using PunkApiNet.Contracts
+@inject HttpClient Http
+@inject IPunkApiClient PunkApiClient
+
+<PageTitle>Brewed Doggy Beers</PageTitle>
+
+<h1>Brewed Doggy Beers</h1>
+
+<p>Beer data is fetched from a web API.</p>
+
+@if (beers == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>ABV%</th>
+                <th>Description</th>
+                <th>Tagline</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var beer in beers)
+            {
+                <tr>
+                    <td>@beer.Name</td>
+                    <td>@beer.Abv</td>
+                    <td>@beer.Description</td>
+                    <td>@beer.Tagline</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private IEnumerable<Beer>? beers;
+
+    protected override async Task OnInitializedAsync()
+    {
+        beers = await PunkApiClient.GetAllBeersAsync();
+    }
+}
