@@ -9,7 +9,9 @@ on:
 
 jobs:
   deploy-to-github-pages:
-    # use ubuntu-latest image to run steps on
+    permissions:
+     contents: write
+    
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
