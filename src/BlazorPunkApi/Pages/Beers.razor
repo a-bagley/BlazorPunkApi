@@ -1,0 +1,98 @@
+﻿@page "/beers"
+@using PunkApiNet.Contracts
+@inject HttpClient Http
+@inject IPunkApiClient PunkApiClient
+@inject ILogger<Beers> Logger
+
+<PageTitle>Brewed Doggy Beers</PageTitle>
+
+<MudText Typo="Typo.h2">Brewed Doggy Beers</MudText>
+
+<MudText>Beer data is fetched from a web API.</MudText>
+
+@if (_beers.Count == 0)
+{
+    <MudText Typo="Typo.h3">Loading...</MudText>
+}
+else
+{
+<MudTable Items="@_beers" RowsPerPage=15 Hover="true" Filter="new Func<Beer,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Beer List</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Id</MudTh>
+        <MudTh>Name</MudTh>
+        <MudTh>ABV %</MudTh>
+        <MudTh>Tagline</MudTh>
+        <MudTh>First Brewed</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Id">@context.Id</MudTd>
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="ABV %">@context.Abv</MudTd>
+        <MudTd DataLabel="TagLibe">@context.Tagline</MudTd>
+        <MudTd DataLabel="First Brewed">@context.FirstBrewed</MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager/>
+    </PagerContent>
+</MudTable>
+}
+
+
+@code {
+    private List<Beer> _beers = new List<Beer>();
+    private string searchString = string.Empty;
+    private Beer selectedItem = new();
+    private HashSet<Beer> selectedItems = new HashSet<Beer>();
+    private readonly int _pageSize = 50;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        _beers = await LoadAllBeersAsync();
+    }
+
+    private async Task<List<Beer>> LoadAllBeersAsync()
+    {
+        var allBeers = new List<Beer>();
+        var pageIndex = 1;
+        var loadedBeerCount = 0;
+        var maxIterations = 0;
+        try
+        {
+            do
+            {
+                var loadedBeers = await PunkApiClient.GetAllBeersByPageAsync(pageIndex, _pageSize);
+                allBeers.AddRange(loadedBeers);
+                pageIndex++;
+                maxIterations++;
+                loadedBeerCount += loadedBeers.Count();
+            } while (loadedBeerCount % _pageSize == 0 && maxIterations <= 10);
+            return allBeers;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to load beers");
+            return allBeers;
+        }
+    }
+
+    private bool FilterFunc1(Beer element) => FilterFunc(element, searchString);
+
+    private bool FilterFunc(Beer element, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (string.Equals(element.Id.ToString(), searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (element.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if ($"{element.Tagline} {element.Description} {element.Ingredients}".Contains(searchString))
+            return true;
+        return false;
+    }
+}
